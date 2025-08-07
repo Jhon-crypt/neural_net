@@ -78,7 +78,7 @@ python mnist_classifier.py
 - Training accuracy: ~99%
 - Test accuracy: ~97-98%
 - Files created: 
-  - `mnist_model.h5` (saved model)
+  - `mnist_model.keras` (saved model)
   - `training_history.png`
   - `confusion_matrix.png`
   - `sample_predictions.png`
@@ -105,7 +105,7 @@ from mnist_classifier import MNISTClassifier
 # Load pre-trained model
 classifier = MNISTClassifier()
 classifier.load_and_preprocess_data()
-classifier.load_model("mnist_model.h5")
+classifier.load_model("mnist_model.keras")
 
 # Evaluate loaded model
 accuracy, y_pred, y_true = classifier.evaluate_model()

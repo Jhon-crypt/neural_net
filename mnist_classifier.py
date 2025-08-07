@@ -235,7 +235,7 @@ class MNISTClassifier:
             raise ValueError("No model to save. Train the model first.")
         
         if filepath is None:
-            filepath = f"{self.model_name}.h5"
+            filepath = f"{self.model_name}.keras"
         
         self.model.save(filepath)
         print(f"Model saved to {filepath}")

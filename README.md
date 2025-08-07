@@ -72,7 +72,7 @@ classifier.plot_confusion_matrix(y_true, y_pred)
 classifier.visualize_predictions(num_samples=20)
 
 # Save the model
-classifier.save_model("my_mnist_model.h5")
+classifier.save_model("my_mnist_model.keras")
 ```
 
 ## Model Architecture
@@ -107,7 +107,7 @@ The model typically achieves:
 ## Output Files
 
 After training, the following files are generated:
-- `mnist_model.h5`: Saved trained model
+- `mnist_model.keras`: Saved trained model
 - `training_history.png`: Training and validation metrics plot
 - `confusion_matrix.png`: Confusion matrix heatmap
 - `sample_predictions.png`: Sample predictions visualization

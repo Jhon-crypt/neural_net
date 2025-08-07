@@ -14,6 +14,7 @@ __pycache__/
 .ipynb_checkpoints
 
 # Model files (optional - you might want to track these)
+*.keras
 *.h5
 *.pkl
 *.joblib
