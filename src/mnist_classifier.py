@@ -1,9 +1,9 @@
 """
-MNIST Handwritten Digit Classification using Neural Networks
-============================================================
+Enhanced MNIST Handwritten Digit Classification using Neural Networks
+===================================================================
 
 This script implements a neural network for classifying handwritten digits
-from the MNIST dataset using TensorFlow/Keras.
+from the MNIST dataset and custom images using TensorFlow/Keras.
 """
 
 import tensorflow as tf
@@ -13,11 +13,15 @@ import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
 from sklearn.metrics import classification_report, confusion_matrix
+import cv2
+from PIL import Image
 import os
+import glob
+from pathlib import Path
 
 
 class MNISTClassifier:
-    """A neural network classifier for MNIST handwritten digits."""
+    """A neural network classifier for MNIST handwritten digits with custom image support."""
     
     def __init__(self, model_name="mnist_model"):
         self.model = None
@@ -157,6 +161,194 @@ class MNISTClassifier:
         print(classification_report(y_true_classes, y_pred_classes))
         
         return test_accuracy, y_pred_classes, y_true_classes
+    
+    def preprocess_custom_image(self, image_path):
+        """
+        Preprocess a custom image for digit classification.
+        
+        Args:
+            image_path (str): Path to the image file
+            
+        Returns:
+            np.ndarray: Preprocessed image ready for prediction
+        """
+        try:
+            # Load image
+            if isinstance(image_path, str):
+                image = cv2.imread(image_path, cv2.IMREAD_GRAYSCALE)
+                if image is None:
+                    # Try with PIL if OpenCV fails
+                    pil_image = Image.open(image_path).convert('L')
+                    image = np.array(pil_image)
+            else:
+                # Assume it's already a numpy array
+                image = image_path
+                
+            # Resize to 28x28
+            image = cv2.resize(image, (28, 28))
+            
+            # Invert if needed (MNIST digits are white on black)
+            # Check if background is lighter than foreground
+            if np.mean(image) > 127:
+                image = 255 - image
+            
+            # Normalize to [0, 1]
+            image = image.astype('float32') / 255.0
+            
+            # Flatten to match model input
+            image = image.reshape(1, 784)
+            
+            return image
+            
+        except Exception as e:
+            print(f"Error preprocessing image {image_path}: {e}")
+            return None
+    
+    def classify_image(self, image_path, show_confidence=True):
+        """
+        Classify a single custom image.
+        
+        Args:
+            image_path (str): Path to the image file
+            show_confidence (bool): Whether to show prediction confidence
+            
+        Returns:
+            tuple: (predicted_digit, confidence_score)
+        """
+        if self.model is None:
+            raise ValueError("Model not loaded. Train a model or load a saved one first.")
+        
+        # Preprocess the image
+        processed_image = self.preprocess_custom_image(image_path)
+        if processed_image is None:
+            return None, None
+        
+        # Make prediction
+        prediction = self.model.predict(processed_image, verbose=0)
+        predicted_digit = np.argmax(prediction)
+        confidence = np.max(prediction)
+        
+        if show_confidence:
+            print(f"Image: {os.path.basename(image_path)}")
+            print(f"Predicted digit: {predicted_digit}")
+            print(f"Confidence: {confidence:.3f}")
+            
+            # Show top 3 predictions
+            top_3_indices = np.argsort(prediction[0])[-3:][::-1]
+            print("Top 3 predictions:")
+            for i, idx in enumerate(top_3_indices):
+                print(f"  {i+1}. Digit {idx}: {prediction[0][idx]:.3f}")
+            print("-" * 40)
+        
+        return predicted_digit, confidence
+    
+    def classify_images_in_directory(self, directory_path, image_extensions=['*.png', '*.jpg', '*.jpeg', '*.bmp', '*.tiff']):
+        """
+        Classify all images in a directory.
+        
+        Args:
+            directory_path (str): Path to directory containing images
+            image_extensions (list): List of image file extensions to process
+            
+        Returns:
+            dict: Dictionary mapping image paths to (digit, confidence) tuples
+        """
+        if self.model is None:
+            raise ValueError("Model not loaded. Train a model or load a saved one first.")
+        
+        results = {}
+        image_files = []
+        
+        # Collect all image files
+        for extension in image_extensions:
+            pattern = os.path.join(directory_path, extension)
+            image_files.extend(glob.glob(pattern))
+        
+        if not image_files:
+            print(f"No images found in {directory_path}")
+            return results
+        
+        print(f"Found {len(image_files)} images to classify...")
+        print("=" * 50)
+        
+        for image_path in sorted(image_files):
+            digit, confidence = self.classify_image(image_path, show_confidence=True)
+            if digit is not None:
+                results[image_path] = (digit, confidence)
+        
+        # Summary
+        print("=" * 50)
+        print("CLASSIFICATION SUMMARY:")
+        digit_counts = {}
+        for _, (digit, _) in results.items():
+            digit_counts[digit] = digit_counts.get(digit, 0) + 1
+        
+        for digit in sorted(digit_counts.keys()):
+            print(f"Digit {digit}: {digit_counts[digit]} images")
+        
+        return results
+    
+    def visualize_custom_predictions(self, image_paths, max_images=10):
+        """
+        Visualize predictions for custom images.
+        
+        Args:
+            image_paths (list): List of image paths to visualize
+            max_images (int): Maximum number of images to show
+        """
+        if self.model is None:
+            raise ValueError("Model not loaded.")
+        
+        # Limit number of images
+        image_paths = image_paths[:max_images]
+        
+        # Calculate grid size
+        n_images = len(image_paths)
+        cols = min(5, n_images)
+        rows = (n_images + cols - 1) // cols
+        
+        fig, axes = plt.subplots(rows, cols, figsize=(2*cols, 2*rows))
+        if n_images == 1:
+            axes = [axes]
+        elif rows == 1:
+            axes = axes.reshape(1, -1)
+        
+        axes = axes.flatten()
+        
+        for i, image_path in enumerate(image_paths):
+            # Load and display original image
+            try:
+                original_image = cv2.imread(image_path, cv2.IMREAD_GRAYSCALE)
+                if original_image is None:
+                    pil_image = Image.open(image_path).convert('L')
+                    original_image = np.array(pil_image)
+                
+                axes[i].imshow(original_image, cmap='gray')
+                
+                # Get prediction
+                digit, confidence = self.classify_image(image_path, show_confidence=False)
+                
+                # Set title with prediction
+                filename = os.path.basename(image_path)
+                if digit is not None:
+                    axes[i].set_title(f'{filename}\nPred: {digit} ({confidence:.2f})')
+                else:
+                    axes[i].set_title(f'{filename}\nError')
+                axes[i].axis('off')
+                
+            except Exception as e:
+                axes[i].text(0.5, 0.5, f'Error\n{str(e)[:20]}...', 
+                           ha='center', va='center', transform=axes[i].transAxes)
+                axes[i].set_title(os.path.basename(image_path))
+                axes[i].axis('off')
+        
+        # Hide unused subplots
+        for i in range(n_images, len(axes)):
+            axes[i].axis('off')
+        
+        plt.tight_layout()
+        plt.savefig('assets/custom_predictions.png', dpi=300, bbox_inches='tight')
+        plt.show()
         
     def plot_training_history(self):
         """Plot training and validation metrics."""
@@ -184,7 +376,7 @@ class MNISTClassifier:
         ax2.grid(True)
         
         plt.tight_layout()
-        plt.savefig('training_history.png', dpi=300, bbox_inches='tight')
+        plt.savefig('assets/training_history.png', dpi=300, bbox_inches='tight')
         plt.show()
         
     def plot_confusion_matrix(self, y_true, y_pred):
@@ -197,11 +389,11 @@ class MNISTClassifier:
         plt.title('Confusion Matrix')
         plt.xlabel('Predicted Label')
         plt.ylabel('True Label')
-        plt.savefig('confusion_matrix.png', dpi=300, bbox_inches='tight')
+        plt.savefig('assets/confusion_matrix.png', dpi=300, bbox_inches='tight')
         plt.show()
         
     def visualize_predictions(self, num_samples=10):
-        """Visualize sample predictions."""
+        """Visualize sample predictions from test set."""
         # Get original images for visualization
         (x_train_orig, _), (x_test_orig, _) = keras.datasets.mnist.load_data()
         
@@ -226,7 +418,7 @@ class MNISTClassifier:
                 axes[i].title.set_color('red')
         
         plt.tight_layout()
-        plt.savefig('sample_predictions.png', dpi=300, bbox_inches='tight')
+        plt.savefig('assets/sample_predictions.png', dpi=300, bbox_inches='tight')
         plt.show()
         
     def save_model(self, filepath=None):
@@ -235,7 +427,10 @@ class MNISTClassifier:
             raise ValueError("No model to save. Train the model first.")
         
         if filepath is None:
-            filepath = f"{self.model_name}.keras"
+            filepath = f"models/{self.model_name}.keras"
+            
+        # Create models directory if it doesn't exist
+        os.makedirs(os.path.dirname(filepath), exist_ok=True)
         
         self.model.save(filepath)
         print(f"Model saved to {filepath}")

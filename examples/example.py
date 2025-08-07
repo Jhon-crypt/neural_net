@@ -2,6 +2,9 @@
 Simple example of using the MNIST classifier
 """
 
+import sys
+import os
+sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'src'))
 from mnist_classifier import MNISTClassifier
 
 def simple_example():

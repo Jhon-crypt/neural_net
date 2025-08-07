@@ -5,6 +5,9 @@ Basic test to verify the MNIST classifier imports and basic functionality
 import sys
 import os
 
+# Add src directory to path
+sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'src'))
+
 def test_imports():
     """Test if all required modules can be imported."""
     print("Testing imports...")
