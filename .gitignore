@@ -13,18 +13,6 @@ __pycache__/
 # Jupyter Notebook checkpoints
 .ipynb_checkpoints
 
-# Model files (optional - you might want to track these)
-*.keras
-*.h5
-*.pkl
-*.joblib
-
-# Generated plots and outputs
-*.png
-*.jpg
-*.jpeg
-*.pdf
-
 # IDE files
 .vscode/
 .idea/

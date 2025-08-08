@@ -347,6 +347,11 @@ class MNISTClassifier:
             axes[i].axis('off')
         
         plt.tight_layout()
+        
+        # Create assets directory if it doesn't exist
+        import os
+        os.makedirs('assets', exist_ok=True)
+        
         plt.savefig('assets/custom_predictions.png', dpi=300, bbox_inches='tight')
         plt.show()
         
@@ -376,6 +381,11 @@ class MNISTClassifier:
         ax2.grid(True)
         
         plt.tight_layout()
+        
+        # Create assets directory if it doesn't exist
+        import os
+        os.makedirs('assets', exist_ok=True)
+        
         plt.savefig('assets/training_history.png', dpi=300, bbox_inches='tight')
         plt.show()
         
@@ -389,6 +399,11 @@ class MNISTClassifier:
         plt.title('Confusion Matrix')
         plt.xlabel('Predicted Label')
         plt.ylabel('True Label')
+        
+        # Create assets directory if it doesn't exist
+        import os
+        os.makedirs('assets', exist_ok=True)
+        
         plt.savefig('assets/confusion_matrix.png', dpi=300, bbox_inches='tight')
         plt.show()
         
@@ -418,6 +433,11 @@ class MNISTClassifier:
                 axes[i].title.set_color('red')
         
         plt.tight_layout()
+        
+        # Create assets directory if it doesn't exist
+        import os
+        os.makedirs('assets', exist_ok=True)
+        
         plt.savefig('assets/sample_predictions.png', dpi=300, bbox_inches='tight')
         plt.show()
         

@@ -46,7 +46,9 @@ def create_sample_digits():
                     y2 = y1 + cell_size
                     draw.rectangle([x1, y1, x2, y2], fill=0)  # Black
         
-        # Save the image
+        # Save the image - create directory if it doesn't exist
+        import os
+        os.makedirs('assets/sample_digits', exist_ok=True)
         img.save(f'assets/sample_digits/digit_{digit}.png')
     
     print("Sample digits created in assets/sample_digits/")
