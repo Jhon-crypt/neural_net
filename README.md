@@ -38,6 +38,9 @@ This project implements a deep neural network to classify handwritten digits (0-
 neural_net/
 ├── src/                          # Source code
 │   └── mnist_classifier.py      # Main classifier implementation
+├── notebooks/                    # Interactive Jupyter notebooks
+│   ├── training_demo.ipynb      # Step-by-step training demonstration
+│   └── analysis_demo.ipynb      # Comprehensive model analysis
 ├── examples/                     # Usage examples
 │   ├── example.py               # Basic MNIST training example
 │   └── classify_custom_images.py # Custom image classification examples
@@ -51,7 +54,38 @@ neural_net/
 │   ├── sample_predictions.png   # MNIST test predictions
 │   └── custom_predictions.png   # Custom image predictions
 ├── requirements.txt              # Python dependencies
+├── LICENSE                       # MIT License
 └── README.md                    # This comprehensive guide
+```
+
+## 📓 Interactive Notebooks
+
+For the best learning experience, check out our Jupyter notebooks:
+
+### 🎯 Training Demo (`notebooks/training_demo.ipynb`)
+Interactive step-by-step training demonstration:
+- Dataset exploration and visualization
+- Model architecture explanation
+- Live training progress monitoring
+- Performance evaluation and model saving
+
+### 📊 Analysis Demo (`notebooks/analysis_demo.ipynb`)
+Comprehensive model analysis and evaluation:
+- Detailed performance metrics
+- Confusion matrix analysis
+- Error analysis with misclassified examples
+- Confidence score distributions
+- Model interpretation insights
+
+**To run notebooks:**
+```bash
+# Install Jupyter if not already installed
+pip install jupyter
+
+# Start Jupyter server
+jupyter notebook
+
+# Navigate to notebooks/ folder and open desired notebook
 ```
 
 ## 🚀 Quick Start
@@ -434,7 +468,7 @@ Core requirements:
 
 ## 📄 License
 
-This project is open source and available under the MIT License.
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ## 🙏 Acknowledgments
 
